@@ -1,4 +1,4 @@
-const Recipe = require('../models/Recipes')
+const Recipe = require('../models/Recipes');
 
 module.exports = {
   createRecipe: async (req, res) => {
@@ -12,15 +12,17 @@ module.exports = {
   },
   getAllRecipe: async (req, res) => {
     try {
-      const recipe = await Recipe.find().sort({ createdAt: -1 });
-      res.status(200).json(recipe);
+      const recipes = await Recipe.find()
+        .populate('id_cat')
+        .sort({ createdAt: -1 });
+      res.status(200).json(recipes);
     } catch (error) {
       res.status(500).json('Failed to get the Recipes');
     }
   },
   getRecipe: async (req, res) => {
     try {
-      const recipe = await Recipe.findById(req.params.id);
+      const recipe = await Recipe.findById(req.params.id).populate('id_cat');
       res.status(200).json(recipe);
     } catch (error) {
       res.status(500).json('Failed to get the Recipe');
@@ -45,5 +47,5 @@ module.exports = {
     } catch (error) {
       res.status(500).json('failed to get the Recipes');
     }
-  }
+  },
 };
