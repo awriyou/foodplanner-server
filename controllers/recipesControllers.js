@@ -10,6 +10,15 @@ module.exports = {
       res.status(500).json('Failed to create the Recipe');
     }
   },
+  createRecipes: async (req, res) => {
+    const newRecipes = req.body; // Asumsikan req.body adalah array objek resep
+    try {
+      await Recipe.insertMany(newRecipes); // Gunakan insertMany untuk bulk insertion
+      res.status(200).json('Recipes created successfully');
+    } catch (error) {
+      res.status(500).json('Failed to create the Recipes');
+    }
+  },
   getAllRecipe: async (req, res) => {
     try {
       const recipes = await Recipe.find()
