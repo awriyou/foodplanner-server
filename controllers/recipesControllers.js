@@ -57,4 +57,22 @@ module.exports = {
       res.status(500).json('failed to get the Recipes');
     }
   },
+  getRecipeByCategory: async(req, res) => {
+    try {
+      const recipes = await Recipe.find({ id_cat: req.params.categoryId })
+        .populate('id_cat')
+        .sort({ createdAt: -1 });
+
+      if (!recipes.length) {
+        return res
+          .status(404)
+          .json({ message: 'Resep dengan kategori tersebut tidak ditemukan' });
+      }
+
+      res.status(200).json(recipes);
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: 'Gagal mengambil resep' });
+    }
+  }
 };

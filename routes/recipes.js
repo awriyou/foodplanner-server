@@ -7,5 +7,6 @@ router.get('/:id', recipeControllers.getRecipe);
 router.get('/search/:key', recipeControllers.searchRecipe);
 router.post('/', recipeControllers.createRecipe);
 router.post('/many/', recipeControllers.createRecipes);
+router.get('/categories/:categoryId', recipeControllers.getRecipeByCategory);
 
 module.exports = router;
