@@ -36,6 +36,7 @@ const UserSchema = new mongoose.Schema(
     email: {
       type: String,
       required: true,
+      unique: true,
     },
     password: {
       type: String,
@@ -46,17 +47,18 @@ const UserSchema = new mongoose.Schema(
       ref: 'Recipe',
     },
     planner: {
-      type: {
-        date: {
-          type: String,
-          required: true,
+      type: [
+        {
+          date: { type: Date, required: true },
+          recipes: [
+            {
+              type: mongoose.Schema.Types.ObjectId,
+              ref: 'Recipe',
+              required: true,
+            },
+          ],
         },
-        recipes: {
-          type: [mongoose.Schema.Types.ObjectId],
-          ref: 'Recipe',
-        },
-      },
-      required: false,
+      ],
     },
   },
   { timestamps: true }

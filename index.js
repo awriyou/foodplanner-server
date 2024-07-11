@@ -6,7 +6,7 @@ const app = express();
 const port = 3000;
 const recipeRouter = require('./routes/recipes');
 const categoryRouter = require('./routes/categories');
-
+const userRouter = require('./routes/users');
 
 dotenv.config();
 mongoose
@@ -21,6 +21,7 @@ app.use(bodyParser.json());
 
 app.use('/api/recipes', recipeRouter);
 app.use('/api/categories', categoryRouter);
+app.use('/api/users', userRouter)
 
 app.listen(process.env.PORT || port, () =>
   console.log(`app listening on port ${process.env.PORT}!`)
