@@ -154,6 +154,7 @@ module.exports = {
           steps: recipe.steps,
           recipe_img: recipe.recipe_img,
           id_cat: recipe.id_cat,
+          level: recipe.level,
         })),
       }));
 
@@ -217,18 +218,15 @@ module.exports = {
         return res.status(400).json({ message: 'Planner not found' });
       }
 
-      // Mengecek apakah resep ada dalam planner
-      let recipeIndex = planner.recipes.indexOf(recipeId);
-      if (recipeIndex === -1) {
-        return res.status(400).json({ message: 'Recipe not in planner' });
-      }
-
       // Menghapus resep dari planner
-      planner.recipes.splice(recipeIndex, 1);
+      planner.recipes.pull(recipeId);
 
       // Menghapus planner jika tidak ada resep yang tersisa
       if (planner.recipes.length === 0) {
-        planner.remove();
+        // Menggunakan splice untuk menghapus planner dari user.planner array
+        user.planner = user.planner.filter(
+          (p) => p.id.toString() !== plannerId
+        );
       }
 
       await user.save();
@@ -239,5 +237,4 @@ module.exports = {
       res.status(500).json({ message: 'Internal Server Error' });
     }
   },
-  
 };
