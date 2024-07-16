@@ -135,11 +135,8 @@ module.exports = {
 
       // Populate planner dan semua field dalam recipes
       const user = await User.findById(userId).populate({
-        path: 'planner',
-        populate: {
-          path: 'recipes',
-          model: 'Recipe', // Pastikan 'Recipe' sesuai dengan nama model resep Anda
-        },
+        path: 'planner.recipes',
+        model: 'Recipe', // Pastikan 'Recipe' sesuai dengan nama model resep Anda
       });
 
       if (!user) return res.status(404).json({ message: 'User not found' });
@@ -148,6 +145,7 @@ module.exports = {
       const formattedPlanner = user.planner.map((planner) => ({
         id: planner._id,
         date: planner.date,
+        time: planner.time,
         recipes: planner.recipes.map((recipe) => ({
           id: recipe._id,
           name: recipe.name,
@@ -169,7 +167,7 @@ module.exports = {
   addPlanner: async (req, res) => {
     try {
       const userId = req.body.id;
-      const { date, recipeId } = req.body;
+      const { date, time, recipeId } = req.body;
 
       const user = await User.findById(userId).populate('planner.recipes');
       if (!user) return res.status(404).json({ message: 'User not found' });
@@ -177,23 +175,24 @@ module.exports = {
       // Mengubah date menjadi Date object
       const dateObj = new Date(date);
 
-      // Mengecek apakah sudah ada planner dengan tanggal yang sama
+      // Mengecek apakah sudah ada planner dengan tanggal dan waktu yang sama
       let planner = user.planner.find(
-        (planner) => planner.date.getTime() === dateObj.getTime()
+        (planner) =>
+          planner.date.getTime() === dateObj.getTime() && planner.time === time
       );
 
       if (planner) {
-        // Jika planner dengan tanggal yang sama ditemukan, tambahkan resep baru
+        // Jika planner dengan tanggal dan waktu yang sama ditemukan, tambahkan resep baru
         if (!planner.recipes.some((recipe) => recipe.equals(recipeId))) {
           planner.recipes.push(recipeId);
         } else {
-          return res
-            .status(400)
-            .json({ message: 'Recipe already in planner for this date' });
+          return res.status(400).json({
+            message: 'Recipe already in planner for this date and time',
+          });
         }
       } else {
-        // Jika planner dengan tanggal tersebut belum ada, buat entri baru
-        user.planner.push({ date: dateObj, recipes: [recipeId] });
+        // Jika planner dengan tanggal dan waktu tersebut belum ada, buat entri baru
+        user.planner.push({ date: dateObj, time, recipes: [recipeId] });
       }
 
       await user.save();
@@ -240,4 +239,5 @@ module.exports = {
       res.status(500).json({ message: 'Internal Server Error' });
     }
   },
+  
 };

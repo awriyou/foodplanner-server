@@ -50,6 +50,7 @@ const UserSchema = new mongoose.Schema(
       type: [
         {
           date: { type: Date, required: true },
+          time: { type: String, required: true},
           recipes: [
             {
               type: mongoose.Schema.Types.ObjectId,
