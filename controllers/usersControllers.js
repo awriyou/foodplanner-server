@@ -53,7 +53,41 @@ module.exports = {
       res.status(500).json({ message: error });
     }
   },
-  // changePassword: async (req, res) => {},
+  changePassword: async (req, res) => {
+    try {
+      const userId = req.params.id;
+      const { oldPassword, newPassword } = req.body;
+
+      // Temukan pengguna berdasarkan ID
+      const user = await User.findById(userId);
+      if (!user) return res.status(404).json({ message: 'User not found' });
+
+      // Verifikasi kata sandi lama
+      const decryptedOldPassword = CryptoJS.AES.decrypt(
+        user.password,
+        process.env.SECRET
+      ).toString(CryptoJS.enc.Utf8);
+
+      if (decryptedOldPassword !== oldPassword) {
+        return res.status(400).json({ message: 'Incorrect old password' });
+      }
+
+      // Enkripsi kata sandi baru
+      const encryptedNewPassword = CryptoJS.AES.encrypt(
+        newPassword,
+        process.env.SECRET
+      ).toString();
+
+      // Perbarui kata sandi pengguna
+      user.password = encryptedNewPassword;
+      await user.save();
+
+      res.status(200).json({ message: 'Password updated successfully' });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: 'Internal Server Error' });
+    }
+  },
 
   getUser: async (req, res) => {
     try {
