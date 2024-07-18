@@ -1,5 +1,4 @@
 const User = require('../models/Users');
-
 const CryptoJS = require('crypto-js');
 const jwt = require('jsonwebtoken');
 
@@ -89,19 +88,6 @@ module.exports = {
     }
   },
 
-  getRecipeFavoriteCounts: async (req, res) => {
-    const { recipeId } = req.params;
-
-    try {
-      const count = await User.countDocuments({ favorites: recipeId });
-
-      res.status(200).json({ count });
-    } catch (error) {
-      res
-        .status(500)
-        .json({ message: 'Error counting favorite recipes', error });
-    }
-  },
 
   getUser: async (req, res) => {
     try {
@@ -285,4 +271,5 @@ module.exports = {
       res.status(500).json({ message: 'Internal Server Error' });
     }
   },
+
 };

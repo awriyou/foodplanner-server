@@ -1,4 +1,5 @@
 const Recipe = require('../models/Recipes');
+const User = require('../models/Users');
 
 module.exports = {
   createRecipe: async (req, res) => {
@@ -57,7 +58,7 @@ module.exports = {
       res.status(500).json('failed to get the Recipes');
     }
   },
-  getRecipeByCategory: async(req, res) => {
+  getRecipeByCategory: async (req, res) => {
     try {
       const recipes = await Recipe.find({ id_cat: req.params.categoryId })
         .populate('id_cat')
@@ -74,5 +75,55 @@ module.exports = {
       console.error(error);
       res.status(500).json({ message: 'Gagal mengambil resep' });
     }
-  }
+  },
+
+  getPopularRecipes: async (req, res) => {
+    try {
+      // Agregasi untuk menghitung jumlah favorit
+      const favoriteCounts = await User.aggregate([
+        { $unwind: '$favorites' },
+        { $group: { _id: '$favorites', count: { $sum: 1 } } },
+        { $sort: { count: -1 } },
+        { $limit: 5 },
+      ]);
+
+      const popularRecipeIds = favoriteCounts.map((fav) => fav._id);
+
+      // Mengambil detail resep
+      const popularRecipes = await Recipe.find({
+        _id: { $in: popularRecipeIds },
+      });
+
+      // Menggabungkan data resep dengan jumlah favorit
+      const popularRecipesWithCount = popularRecipes.map((recipe) => {
+        const countData = favoriteCounts.find((fav) =>
+          fav._id.equals(recipe._id)
+        );
+        return {
+          recipe,
+          favoriteCount: countData ? countData.count : 0,
+        };
+      });
+
+      res.status(200).json(popularRecipesWithCount);
+    } catch (error) {
+      res
+        .status(500)
+        .json({ message: 'Error fetching popular recipes', error });
+    }
+  },
+
+  getRecipeFavoriteCounts: async (req, res) => {
+    const { recipeId } = req.params;
+
+    try {
+      const count = await User.countDocuments({ favorites: recipeId });
+
+      res.status(200).json({ count });
+    } catch (error) {
+      res
+        .status(500)
+        .json({ message: 'Error counting favorite recipes', error });
+    }
+  },
 };
