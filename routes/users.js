@@ -11,5 +11,6 @@ router.delete('/favorite/:id', userControllers.deleteFavorite);
 router.get('/planner/:id', userControllers.getPlanner);
 router.post('/planner', userControllers.addPlanner);
 router.delete('/planner/:id', userControllers.deletePlanner);
+router.post('/forgotPassword', userControllers.forgotPassword);
 
 module.exports = router;
